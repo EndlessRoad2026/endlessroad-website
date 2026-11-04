@@ -1,0 +1,7 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/endlessroad/public_html/
+    - /bin/mkdir -p $DEPLOYPATH/img
+    - /bin/cp index.html $DEPLOYPATH
+    - /bin/cp -R img/. $DEPLOYPATH/img/
