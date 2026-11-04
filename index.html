@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Endless Road · A desert survival driving game</title>
+<meta name="description" content="Endless Road is a free survival driving game you play in your browser. Pick a world, keep driving, and scavenge abandoned houses and wrecks for food, fuel and spare parts.">
+<meta property="og:title" content="Endless Road">
+<meta property="og:description" content="A free survival driving game you play in your browser. Made by Louis.">
+<meta property="og:image" content="https://endlessroad.co.za/img/desert-drive.jpg">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏜️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Rubik:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--sand:#e9b766;--rust:#b8562a;--dusk:#2a1c14;--ink:#1a120d;--cream:#fff4e2;--sun:#ffd166;--card:#33241a}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Rubik',system-ui,sans-serif;background:var(--ink);color:var(--cream);line-height:1.55}
+  a{color:inherit}
+  img{display:block;max-width:100%}
+  .wrap{width:min(1120px,92vw);margin:0 auto}
+  .bungee{font-family:'Bungee',sans-serif;letter-spacing:1px}
+
+  /* nav */
+  nav{position:fixed;top:0;left:0;right:0;z-index:50;background:linear-gradient(180deg,rgba(26,18,13,.85),rgba(26,18,13,0));transition:background .2s}
+  nav.solid{background:rgba(26,18,13,.95);box-shadow:0 2px 20px rgba(0,0,0,.4)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .logo{font-family:'Bungee',sans-serif;font-size:20px;text-decoration:none}
+  nav ul{display:flex;gap:26px;list-style:none;align-items:center}
+  nav ul a{text-decoration:none;font-weight:500;opacity:.85}nav ul a:hover{opacity:1}
+  .play-sm{background:var(--sun);color:var(--dusk);padding:8px 16px;border-radius:10px;font-weight:800;opacity:1!important}
+
+  /* hero */
+  .hero{position:relative;min-height:100vh;display:flex;align-items:flex-end;padding-bottom:12vh;overflow:hidden}
+  .hero .bg{position:absolute;inset:0;background:url(img/desert-drive.jpg) center/cover no-repeat;transform:scale(1.05)}
+  .hero:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(26,18,13,.15) 0%,rgba(26,18,13,.25) 45%,rgba(26,18,13,.92) 88%,var(--ink) 100%)}
+  .hero .wrap{position:relative;z-index:1}
+  .badge{display:inline-block;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.25);padding:5px 12px;border-radius:999px;font-size:13px;font-weight:500;margin-bottom:18px}
+  .hero h1{font-family:'Bungee',sans-serif;font-size:clamp(52px,10vw,124px);line-height:.95;text-shadow:0 6px 0 var(--rust),0 16px 40px rgba(0,0,0,.5)}
+  .hero p{font-size:clamp(17px,2.2vw,22px);max-width:620px;margin:20px 0 30px;opacity:.95}
+  .cta{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .btn{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-weight:800;border-radius:14px;padding:16px 28px;font-size:18px;transition:transform .15s,box-shadow .15s}
+  .btn:hover{transform:translateY(-2px)}
+  .btn-play{background:var(--sun);color:var(--dusk);box-shadow:0 8px 0 #c48a1f,0 14px 30px rgba(0,0,0,.4);font-family:'Bungee',sans-serif;font-size:22px;letter-spacing:1px}
+  .btn-play:hover{box-shadow:0 10px 0 #c48a1f,0 18px 36px rgba(0,0,0,.45)}
+  .btn-ghost{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:var(--cream)}
+  .note{font-size:13px;opacity:.7;margin-top:16px}
+
+  section{padding:96px 0}
+  .eyebrow{color:var(--sand);font-weight:700;letter-spacing:2px;text-transform:uppercase;font-size:13px;margin-bottom:10px}
+  h2{font-family:'Bungee',sans-serif;font-size:clamp(30px,4.5vw,48px);line-height:1.05;margin-bottom:16px}
+  .lead{font-size:18px;opacity:.85;max-width:680px}
+
+  /* worlds */
+  .worlds{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:44px}
+  .world{border-radius:20px;overflow:hidden;background:var(--card);box-shadow:0 14px 40px rgba(0,0,0,.35);display:flex;flex-direction:column}
+  .world img{aspect-ratio:16/10;object-fit:cover}
+  .world .txt{padding:20px 22px 24px}
+  .world h3{font-family:'Bungee',sans-serif;font-size:22px;margin-bottom:6px}
+  .world p{opacity:.85;font-size:15px}
+  .world .tag{display:inline-block;margin-top:12px;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px}
+  .w-desert .tag{background:#7a3a17}.w-snow .tag{background:#2f4a68}.w-jungle .tag{background:#25502c}
+
+  /* features */
+  .features{background:linear-gradient(180deg,var(--ink),#22170f 40%,var(--ink))}
+  .fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:40px}
+  .feat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:22px}
+  .feat .ic{font-size:30px;margin-bottom:8px}
+  .feat h3{font-size:18px;margin-bottom:4px}
+  .feat p{opacity:.78;font-size:15px}
+  .split{display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:center;margin-top:70px}
+  .split img{border-radius:18px;box-shadow:0 20px 50px rgba(0,0,0,.45)}
+  .split.rev{grid-template-columns:1fr 1.1fr}.split.rev .media{order:2}
+  .split h3{font-family:'Bungee',sans-serif;font-size:28px;margin-bottom:10px}
+  .split p{opacity:.85;margin-bottom:10px}
+
+  /* controls */
+  .keys{display:grid;grid-template-columns:repeat(2,1fr);gap:12px 40px;margin-top:34px}
+  .key{display:flex;gap:14px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+  kbd{display:inline-block;min-width:34px;text-align:center;background:var(--cream);color:var(--dusk);border-radius:7px;padding:4px 9px;font-family:'Rubik',sans-serif;font-weight:800;font-size:14px;box-shadow:0 3px 0 #b9a68b}
+  .key .k{display:flex;gap:5px;flex-shrink:0;min-width:150px}
+
+  /* gallery */
+  .gallery{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:170px;gap:12px;margin-top:40px}
+  .gallery button{border:0;padding:0;border-radius:14px;overflow:hidden;cursor:zoom-in;background:#000;position:relative}
+  .gallery img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+  .gallery button:hover img{transform:scale(1.05)}
+  .gallery .big{grid-column:span 2;grid-row:span 2}
+  .gallery .wide{grid-column:span 2}
+  .cap{position:absolute;left:0;right:0;bottom:0;padding:22px 12px 8px;background:linear-gradient(transparent,rgba(0,0,0,.75));font-size:13px;font-weight:500;text-align:left}
+  .lightbox{position:fixed;inset:0;background:rgba(10,7,5,.94);z-index:100;display:none;align-items:center;justify-content:center;flex-direction:column;padding:4vw}
+  .lightbox.on{display:flex}
+  .lightbox img{max-height:80vh;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+  .lightbox p{margin-top:14px;opacity:.85}
+  .lightbox .x,.lightbox .nav{position:absolute;background:rgba(255,255,255,.12);border:0;color:#fff;border-radius:999px;width:48px;height:48px;font-size:22px;cursor:pointer}
+  .lightbox .x{top:20px;right:20px}.lightbox .prev{left:20px;top:50%}.lightbox .next{right:20px;top:50%}
+
+  /* updates */
+  .timeline{margin-top:40px;border-left:3px solid rgba(233,183,102,.35);padding-left:28px;display:flex;flex-direction:column;gap:34px}
+  .rel{position:relative}
+  .rel:before{content:'';position:absolute;left:-37px;top:6px;width:15px;height:15px;border-radius:50%;background:var(--sand);box-shadow:0 0 0 5px var(--ink)}
+  .rel .when{font-size:13px;opacity:.65;font-weight:500}
+  .rel h3{font-family:'Bungee',sans-serif;font-size:22px;margin:2px 0 8px}
+  .rel h3 span{font-family:'Rubik',sans-serif;font-size:13px;background:var(--rust);padding:3px 9px;border-radius:999px;vertical-align:middle;margin-left:8px;letter-spacing:0}
+  .rel ul{padding-left:20px;opacity:.88}
+  .rel li{margin:3px 0}
+
+  /* final cta */
+  .final{text-align:center;background:radial-gradient(ellipse at 50% 110%,#e9a95b 0%,#9c5a2e 38%,var(--ink) 78%);padding:120px 0}
+  .final h2{font-size:clamp(36px,6vw,64px)}
+  .final p{opacity:.85;margin:10px auto 30px;max-width:520px}
+  footer{padding:30px 0;font-size:14px;opacity:.65;text-align:center}
+
+  @media (max-width:860px){
+    nav ul li:not(:last-child){display:none}
+    .worlds,.fgrid{grid-template-columns:1fr}
+    .split,.split.rev{grid-template-columns:1fr}.split.rev .media{order:0}
+    .keys{grid-template-columns:1fr}
+    .gallery{grid-template-columns:repeat(2,1fr);grid-auto-rows:140px}
+  }
+</style>
+</head>
+<body>
+
+<nav id="nav"><div class="wrap">
+  <a class="logo" href="#top">ENDLESS ROAD</a>
+  <ul>
+    <li><a href="#worlds">Worlds</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how">How to play</a></li>
+    <li><a href="#gallery">Screenshots</a></li>
+    <li><a href="#updates">Updates</a></li>
+    <li><a class="play-sm" href="https://play.endlessroad.co.za">Play</a></li>
+  </ul>
+</div></nav>
+
+<header class="hero" id="top">
+  <div class="bg"></div>
+  <div class="wrap">
+    <span class="badge">🎮 Free · plays in your browser · no download</span>
+    <h1>ENDLESS<br>ROAD</h1>
+    <p>Pick a world and keep driving. When the fuel runs low, pull over and scavenge abandoned houses and rusty wrecks for food, fuel, tools and spare parts. How far can you get?</p>
+    <div class="cta">
+      <a class="btn btn-play" href="https://play.endlessroad.co.za">▶ PLAY NOW</a>
+      <a class="btn btn-ghost" href="#gallery">See screenshots</a>
+    </div>
+    <div class="note">Works best on a computer with a keyboard and mouse. Tablets and phones get on-screen buttons.</div>
+  </div>
+</header>
+
+<section id="worlds">
+  <div class="wrap">
+    <div class="eyebrow">Three worlds</div>
+    <h2>Every world plays differently</h2>
+    <p class="lead">The road never ends, and it's different every time you play. Each world has its own weather, dangers and things to find.</p>
+    <div class="worlds">
+      <article class="world w-desert"><img src="img/desert-drive.jpg" alt="A yellow pickup driving down a desert highway past power lines and red rock towers" loading="lazy">
+        <div class="txt"><h3>🏜️ Desert</h3><p>Long hot roads, dunes and towering red rocks. Push too hard and your engine overheats. When a sandstorm rolls in you can barely see the road.</p><span class="tag">Watch the engine heat</span></div></article>
+      <article class="world w-snow"><img src="img/snow-drive.jpg" alt="Driving along a snowy mountain road between pine trees" loading="lazy">
+        <div class="txt"><h3>🏔️ Snowy Mountains</h3><p>Icy roads, steep climbs and freezing cold. Keep the heater running, but it burns fuel. Blizzards hide the road and snowdrifts block your way.</p><span class="tag">Stay warm</span></div></article>
+      <article class="world w-jungle"><img src="img/jungle-drive.jpg" alt="A dirt track through a jungle full of palm trees" loading="lazy">
+        <div class="txt"><h3>🌴 Jungle</h3><p>Muddy tracks, fallen logs and thick trees. When the rain comes the mud gets deeper and the road gets slippery. Grab bananas and coconuts on the way.</p><span class="tag">Mind the mud</span></div></article>
+    </div>
+  </div>
+</section>
+
+<section class="features" id="features">
+  <div class="wrap">
+    <div class="eyebrow">What you can do</div>
+    <h2>Drive, explore, survive</h2>
+    <div class="fgrid">
+      <div class="feat"><div class="ic">🚗</div><h3>Three vehicles</h3><p>A pickup with a load bed, a sedan and an off-road buggy with a roll cage.</p></div>
+      <div class="feat"><div class="ic">🔧</div><h3>Take cars apart</h3><p>Open the bonnet and doors. Take off wheels, doors, the battery or radiator, and swap in parts from wrecks.</p></div>
+      <div class="feat"><div class="ic">🏚️</div><h3>Scavenge</h3><p>Abandoned houses hide food, jerry cans, tool kits, spare wheels and CDs.</p></div>
+      <div class="feat"><div class="ic">🍞</div><h3>Stay alive</h3><p>Keep an eye on your health, stamina and hunger. In the snow, warmth matters too.</p></div>
+      <div class="feat"><div class="ic">📻</div><h3>Car radio</h3><p>Four radio stations plus a CD player. Every song is original music made for the game.</p></div>
+      <div class="feat"><div class="ic">🧰</div><h3>Sandbox mode</h3><p>Spawn cars and items, switch hunger off, change the weather and just play around.</p></div>
+    </div>
+
+    <div class="split">
+      <div class="media"><img src="img/desert-cockpit.jpg" alt="First-person view from the driver's seat with speedometer, rev counter, fuel and temperature gauges" loading="lazy"></div>
+      <div><h3>Behind the wheel</h3>
+        <p>Switch to first-person and drive from the driver's seat, with working dials, warning lights and the radio in the dash.</p>
+        <p>Or press <kbd>V</kbd> to see the car from behind. Your choice.</p></div>
+    </div>
+    <div class="split rev">
+      <div class="media"><img src="img/desert-garage.jpg" alt="The player standing next to a pickup with its bonnet and door open, showing the engine" loading="lazy"></div>
+      <div><h3>Fix it yourself</h3>
+        <p>Broke down in the middle of nowhere? Get out, pop the bonnet and see what's wrong. Missing a wheel? There's a rusty wreck just off the road…</p>
+        <p>Every part you can see, you can take off and put back on.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="eyebrow">How to play</div>
+    <h2>Controls</h2>
+    <p class="lead">Click the game once so you can look around with the mouse. On a tablet, use the buttons on the screen.</p>
+    <div class="keys">
+      <div class="key"><span class="k"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span><span>Drive or walk</span></div>
+      <div class="key"><span class="k"><kbd>E</kbd></span><span>Get in or out, open, pick up, fit parts</span></div>
+      <div class="key"><span class="k"><kbd>Shift</kbd></span><span>Run</span></div>
+      <div class="key"><span class="k"><b>hold</b> <kbd>E</kbd></span><span>Take a part off a car</span></div>
+      <div class="key"><span class="k"><kbd>Space</kbd></span><span>Jump, or handbrake in a car</span></div>
+      <div class="key"><span class="k"><kbd>G</kbd></span><span>Drop what you're holding</span></div>
+      <div class="key"><span class="k"><kbd>V</kbd></span><span>First-person or third-person view</span></div>
+      <div class="key"><span class="k"><kbd>1</kbd>–<kbd>4</kbd> <kbd>F</kbd></span><span>Pick a hotbar slot, eat or play a CD</span></div>
+      <div class="key"><span class="k"><kbd>R</kbd></span><span>Car radio</span></div>
+      <div class="key"><span class="k"><kbd>H</kbd></span><span>Heater (snow)</span></div>
+      <div class="key"><span class="k"><kbd>M</kbd></span><span>Sandbox menu</span></div>
+      <div class="key"><span class="k"><kbd>P</kbd></span><span>Pause</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="gallery" style="padding-top:40px">
+  <div class="wrap">
+    <div class="eyebrow">Screenshots</div>
+    <h2>Taken in the game</h2>
+    <div class="gallery" id="gal">
+      <button class="big" data-cap="Desert highway"><img src="img/desert-drive.jpg" alt="Desert highway" loading="lazy"><span class="cap">Desert highway</span></button>
+      <button data-cap="Driver's seat"><img src="img/desert-cockpit.jpg" alt="Driver's seat" loading="lazy"><span class="cap">Driver's seat</span></button>
+      <button data-cap="Under the bonnet"><img src="img/desert-garage.jpg" alt="Under the bonnet" loading="lazy"><span class="cap">Under the bonnet</span></button>
+      <button data-cap="A rusty wreck to strip for parts"><img src="img/desert-wreck.jpg" alt="Rusty wreck" loading="lazy"><span class="cap">Wrecks to strip for parts</span></button>
+      <button data-cap="Inside an abandoned house"><img src="img/snow-inside.jpg" alt="Inside an abandoned house" loading="lazy"><span class="cap">Inside a cabin</span></button>
+      <button class="wide" data-cap="Snowy Mountains"><img src="img/snow-drive.jpg" alt="Snowy Mountains" loading="lazy"><span class="cap">Snowy Mountains</span></button>
+      <button data-cap="Jungle shack"><img src="img/jungle-house.jpg" alt="Jungle shack" loading="lazy"><span class="cap">Jungle shack</span></button>
+      <button data-cap="Jungle track"><img src="img/jungle-drive.jpg" alt="Jungle track" loading="lazy"><span class="cap">Jungle track</span></button>
+      <button class="wide" data-cap="The sandbox menu"><img src="img/sandbox-menu.jpg" alt="Sandbox menu" loading="lazy"><span class="cap">Sandbox menu</span></button>
+      <button data-cap="Abandoned house in the desert"><img src="img/desert-house.jpg" alt="Abandoned house" loading="lazy"><span class="cap">Abandoned house</span></button>
+      <button data-cap="Snowy wreck"><img src="img/snow-wreck.jpg" alt="Snowy wreck" loading="lazy"><span class="cap">Snowy wreck</span></button>
+    </div>
+  </div>
+</section>
+
+<section id="updates">
+  <div class="wrap">
+    <div class="eyebrow">Updates</div>
+    <h2>What's new</h2>
+    <p class="lead">Endless Road keeps growing. Here's everything that's been added so far.</p>
+    <div class="timeline">
+      <div class="rel"><div class="when">4 November 2026</div><h3>Version 3 <span>latest</span></h3>
+        <ul>
+          <li>First-person view (press V) with mouse look and a crosshair</li>
+          <li>A proper dashboard with working dials, warning lights and a radio screen</li>
+          <li>Bonnets, doors, boots and tailgates open on hinges. Hold E to take them off</li>
+          <li>Detailed engine bay, plus a removable battery and radiator</li>
+          <li>New vehicles: the pickup and the buggy</li>
+          <li>Sandbox mode with a spawn menu for vehicles and items</li>
+          <li>Hotbar, stamina, and CDs to collect for the car radio</li>
+          <li>Power lines, rock towers, clouds and better houses with doors that open</li>
+        </ul></div>
+      <div class="rel"><div class="when">4 November 2026</div><h3>Version 2</h3>
+        <ul>
+          <li>Get out of the car and walk around</li>
+          <li>Take wheels, doors and the bonnet off, and fit parts from wrecks</li>
+          <li>Abandoned houses with food to find, and a hunger bar</li>
+          <li>The car radio with four stations of original music</li>
+          <li>Much more realistic lighting, sky and textures</li>
+        </ul></div>
+      <div class="rel"><div class="when">4 November 2026</div><h3>Version 1</h3>
+        <ul>
+          <li>The first drive: Desert, Snowy Mountains and Jungle</li>
+          <li>Fuel, engine damage, overheating and freezing cold</li>
+          <li>Sandstorms, blizzards and rain</li>
+          <li>Fuel stations, jerry cans and repair kits on the road</li>
+        </ul></div>
+    </div>
+  </div>
+</section>
+
+<section class="final">
+  <div class="wrap">
+    <h2>READY TO DRIVE?</h2>
+    <p>No download, no sign-up. Just pick a world and go.</p>
+    <a class="btn btn-play" href="https://play.endlessroad.co.za">▶ PLAY NOW</a>
+  </div>
+</section>
+
+<footer><div class="wrap">Endless Road · made by Louis · © 2026</div></footer>
+
+<div class="lightbox" id="lb" role="dialog" aria-label="Screenshot">
+  <button class="x" aria-label="Close">✕</button><button class="nav prev" aria-label="Previous">‹</button><button class="nav next" aria-label="Next">›</button>
+  <img alt=""><p></p>
+</div>
+<script>
+  const nav=document.getElementById('nav');addEventListener('scroll',()=>nav.classList.toggle('solid',scrollY>40),{passive:true});
+  const items=[...document.querySelectorAll('#gal button')],lb=document.getElementById('lb'),lbi=lb.querySelector('img'),lbp=lb.querySelector('p');let cur=0;
+  const show=i=>{cur=(i+items.length)%items.length;const b=items[cur];lbi.src=b.querySelector('img').src;lbi.alt=b.dataset.cap;lbp.textContent=b.dataset.cap;lb.classList.add('on');};
+  items.forEach((b,i)=>b.addEventListener('click',()=>show(i)));
+  lb.querySelector('.x').onclick=()=>lb.classList.remove('on');
+  lb.querySelector('.prev').onclick=e=>{e.stopPropagation();show(cur-1);};
+  lb.querySelector('.next').onclick=e=>{e.stopPropagation();show(cur+1);};
+  lb.addEventListener('click',e=>{if(e.target===lb)lb.classList.remove('on');});
+  addEventListener('keydown',e=>{if(!lb.classList.contains('on'))return;if(e.key==='Escape')lb.classList.remove('on');if(e.key==='ArrowLeft')show(cur-1);if(e.key==='ArrowRight')show(cur+1);});
+</script>
+</body>
+</html>
